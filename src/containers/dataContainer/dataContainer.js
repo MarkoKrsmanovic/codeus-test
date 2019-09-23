@@ -2,75 +2,77 @@ import React from "react";
 import * as sensorDataActions from '../../state/sensor/actions';
 import {connect} from 'react-redux';
 import PropTypes from 'prop-types';
-import Form from 'react-bootstrap/Form';
-import Button from 'react-bootstrap/Button';
-import Col from 'react-bootstrap/Col'
+import {Row, InputNumber, Col, Button, Table} from 'antd';
+import 'antd/dist/antd.css';
+
+const columns = [
+    {
+        title: 'Index',
+        dataIndex: 'index',
+        key: 'index'
+    },
+    {
+        title: 'City',
+        dataIndex: 'city',
+        key: 'city'
+    },
+    {
+        title: 'Slot',
+        dataIndex: 'slot',
+        key: 'slot'
+    },
+    {
+        title: 'Velocity',
+        dataIndex: 'velocity',
+        key: 'velocity'
+    }
+];
 
 class dataContainer extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
             lowerIndex: 1,
-            upperIndex: 20,
-            validated: false,
-            lowerIndexInvalid: false,
-            upperIndexInvalid: false
+            upperIndex: 20
         }
     }
+
 
     handleSubmit = (event) => {
         event.preventDefault();
         this.props.fetchAllData(this.state.lowerIndex, this.state.upperIndex);
     };
 
-    isIndexWithinBounds = (index) => {
-        return (index >= 1 && index <= 1000);
-    };
-
-    validate = () => {
-        const indexOutOfBounds = 'Field value must be between 1 and 1000';
-        let lowerIndexInvalid = this.isIndexWithinBounds(this.state.lowerIndex) ? false : indexOutOfBounds;
-        let upperIndexInvalid = this.isIndexWithinBounds(this.state.upperIndex) ? false : indexOutOfBounds;
-        if (!lowerIndexInvalid && this.state.lowerIndex > this.state.upperIndex) {
-            lowerIndexInvalid = 'First index must be lower than second';
-        }
-        this.setState({
-            lowerIndexInvalid: lowerIndexInvalid,
-            upperIndexInvalid: upperIndexInvalid,
-            valid: (!!lowerIndexInvalid || !!upperIndexInvalid)
-        })
-    };
-
     render = () => {
         return (
-            <Form noValidate onSubmit={this.handleSubmit}>
-                <Form.Row>
-                    <Col mr={1}>
-                        <Form.Group>
-                            <Form.Label>From</Form.Label>
-                            <Form.Control type="number" value={this.state.lowerIndex}
-                                          required
-                                          isInvalid={!!this.state.lowerIndexInvalid}
-                                          onChange={event => this.setState({lowerIndex: parseInt(event.target.value)}, () => this.validate())
-                                          }/>
-                            <Form.Control.Feedback type="invalid">{this.state.lowerIndexInvalid}</Form.Control.Feedback>
-                        </Form.Group>
+            <Col>
+                <Row type="flex" justify="center">
+                    <Col>
+                    <p style={{fontSize: "18px"}}>From</p>
                     </Col>
-                    <Col ml={1}>
-                        <Form.Group>
-                            <Form.Label>To</Form.Label>
-                            <Form.Control type="number"
-                                          value={this.state.upperIndex}
-                                          required
-                                          isInvalid={!!this.state.upperIndexInvalid}
-                                          onChange={event => this.setState({upperIndex: parseInt(event.target.value)}, () => this.validate())
-                                          }/>
-                            <Form.Control.Feedback type="invalid">{this.state.upperIndexInvalid}</Form.Control.Feedback>
-                        </Form.Group>
+                    <Col>
+                    <InputNumber value={this.state.lowerIndex} min={1} max={1000}
+                                 onChange={value => this.setState({lowerIndex: value})}/>
                     </Col>
-                </Form.Row>
-                <Button variant="primary" size="lg" type="submit" disabled={!!this.state.valid}>Load</Button>
-            </Form>
+                    <Col>
+                    <p style={{fontSize: "18px"}}>To</p>
+                    </Col>
+                    <Col>
+                    <InputNumber value={this.state.upperIndex} min={1} max={1000}
+                                 onChange={value => this.setState({upperIndex: value})}/>
+                    </Col>
+                    <Col>
+                    <Button primary={true} onClick={this.handleSubmit}
+                            loading={this.props.loading}>Load</Button>
+                    </Col>
+                </Row>
+
+
+                <Table dataSource={this.props.sensorData} columns={columns} loading={this.props.loading}
+                       rowKey={item => item.index}
+                       
+                       size="small" bordered={true}/>
+            </Col>
         )
     }
 }
@@ -83,4 +85,13 @@ const mapDispatchToProps = {
     ...sensorDataActions
 };
 
-export default connect(null, mapDispatchToProps)(dataContainer);
+const mapStateToProps = (state) => {
+    return {
+        loading: state.sensor.loading,
+        done: state.sensor.done,
+        error: state.sensor.error,
+        sensorData: state.sensor.sensorData
+    }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(dataContainer);

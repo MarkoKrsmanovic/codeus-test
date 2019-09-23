@@ -4,19 +4,20 @@ const initialState = {
     sensorData: [],
     loading: false,
     done: false,
-    error: null
+    error: null,
+    token: null
 };
 
 export default (state = initialState, action) => {
     switch (action.type) {
         case SENSOR_LOADING:
-            return {...state, loading: action.payload.status};
+            return {...state, loading: true};
         case SENSOR_DONE:
             return { ...state, loading: false, done: true};
         case SENSOR_PERSIST:
-            return { ...state, sensorData: action.payload};
+            return { ...state, sensorData: action.payload.data, token: action.payload.token};
         case SENSOR_ERROR:
-            return {...state, loading: false, error: action.payload};
+            return {...state, loading: false, error: action.payload.error};
         default:
             return state;
 
