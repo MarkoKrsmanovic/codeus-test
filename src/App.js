@@ -6,8 +6,6 @@ import {createStore, applyMiddleware} from "redux";
 import reducers from "./state/index";
 import DataContainer from "./containers/DataContainer/DataContainer";
 
-import './App.css';
-
 function App() {
     const store = createStore(reducers, composeWithDevTools(applyMiddleware(thunkMiddleware)));
     return (
