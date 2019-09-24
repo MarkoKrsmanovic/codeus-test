@@ -21,7 +21,7 @@ export const fetchAllData = (startIndex, endIndex) => {
 			startIndex,
 			endIndex
 		);
-		console.log("config", config)
+		console.log("config", config);
 		axios
 			.getInstance()
 			.get(getDataRoute, config, {
@@ -38,14 +38,23 @@ export const fetchAllData = (startIndex, endIndex) => {
 				);
 				dispatch(onDataFetchingDone());
 			})
-			.catch(error =>
-				dispatch(
-					onSensorDataError({
-						status: error.response.status,
-						statusText: error.response.statusText
-					})
-				)
-			);
+			.catch(error => {
+				if (error.response) {
+					dispatch(
+						onSensorDataError({
+							status: error.response.status,
+							statusText: error.response.statusText
+						})
+					);
+				} else {
+					dispatch(
+						onSensorDataError({
+							status: 404,
+							statusText: "Something went wrong, please try again"
+						})
+					);
+				}
+			});
 	};
 };
 
